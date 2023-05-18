@@ -16,9 +16,7 @@
 		<ActiveObjectClass>
 			<Id>1682850316610</Id>
 			<Name><![CDATA[Main]]></Name>
-			<StartupCode><![CDATA[int index = 0;
-
-for(int id = 0; id < cells.size(); id++) {
+			<StartupCode><![CDATA[for(int id = 0; id < cells.size(); id++) {
 	int[] coord = to3D(id);
 	Cell c = cells.get(id);
 	int x = coord[0];
@@ -27,7 +25,6 @@ for(int id = 0; id < cells.size(); id++) {
 	c.setCoord(x*cellSize, y*cellSize, z*cellSize);
 	c.setId(x, y, z);
 }
-
 
 for(int id = 0; id < cells.size(); id++) {
 	Cell c = cells.get(id);
@@ -83,7 +80,7 @@ for(int id = 0; id < cells.size(); id++) {
 					<ZHeightCode><![CDATA[1]]></ZHeightCode>
 					<ColumnsCountCode><![CDATA[cells.size() / dx]]></ColumnsCountCode>
 					<RowsCountCode><![CDATA[cells.size() / dy]]></RowsCountCode>
-					<NeigborhoodType>EUCLIDIAN</NeigborhoodType>
+					<NeigborhoodType>MOORE</NeigborhoodType>
 					<LayoutType>ARRANGED</LayoutType>
 					<LayoutTypeApplyOnStartup>true</LayoutTypeApplyOnStartup>
 					<NetworkType>USER_DEF</NetworkType>
@@ -243,35 +240,54 @@ int cz = cell.idZ;
 
 List<Cell> neig = new ArrayList<>();
 
-if (cz + 1 < dz) {
-	Cell n = cells.get(to1D(cx, cy, cz+1));
-	neig.add(n);
+for(int z = -1; z < 2; z++) {
+	for(int y = -1; y < 2; y++) {
+		for(int x = -1; x < 2; x++) {
+			if(z == 0 && y == 0 && x == 0) continue;
+			int nx = cx+x;
+			int ny = cy+y;
+			int nz = cz+z;
+			int id = to1D(
+				nx < 0 ? 0 : nx % dx, 
+				ny < 0 ? 0 : ny % dy, 
+				nz < 0 ? 0 : nz % dz
+			);
+			
+			Cell n = cells.get(id);
+			neig.add(n);	
+		}
+	}
 }
 
-if (cz - 1 > -1) {
-	Cell n = cells.get(to1D(cx, cy, cz-1));
-	neig.add(n);
-}
+//if (cz + 1 < dz) {
+//	Cell n = cells.get(to1D(cx, cy, cz+1));
+//	neig.add(n);
+//}
 
-if (cy + 1 < dy) {
-	Cell n = cells.get(to1D(cx, cy+1, cz));
-	neig.add(n);
-}
+//if (cz - 1 > -1) {
+//	Cell n = cells.get(to1D(cx, cy, cz-1));
+//	neig.add(n);
+//}
 
-if (cz - 1 > -1) {
-	Cell n = cells.get(to1D(cx, cy-1, cz));
-	neig.add(n);
-}
+//if (cy + 1 < dy) {
+//	Cell n = cells.get(to1D(cx, cy+1, cz));
+//	neig.add(n);
+//}
 
-if (cx + 1 < dx) {
-	Cell n = cells.get(to1D(cx+1, cy, cz));
-	neig.add(n);
-}
+//if (cz - 1 > -1) {
+//	Cell n = cells.get(to1D(cx, cy-1, cz));
+//	neig.add(n);
+//}
 
-if (cx - 1 > -1) {
-	Cell n = cells.get(to1D(cx-1, cy, cz));
-	neig.add(n);
-}
+//if (cx + 1 < dx) {
+//	Cell n = cells.get(to1D(cx+1, cy, cz));
+//	neig.add(n);
+//}
+
+//if (cx - 1 > -1) {
+//	Cell n = cells.get(to1D(cx-1, cy, cz));
+//	neig.add(n);
+//}
 
 return neig;]]></Body>
 				</Function>
@@ -602,8 +618,8 @@ return new int[]{ x, y, z };]]></Body>
 //evaluate the next state:
 //alive cell stays alive if it has 2 or 3 alive neighbors
 //dead cell becomes alive if there are exactly 3 neighbors
-alive = alive && ( 2 <= nAliveAround && nAliveAround <= 5 ) ||
-		nAliveAround == 6;
+alive = alive && ( 10 <= nAliveAround && nAliveAround <= 20 ) ||
+		nAliveAround == 20;
 
 //change color according to state
 if( alive != wasalive ) {
@@ -885,9 +901,9 @@ this.idZ = iz;]]></Body>
 	//nAliveAround + ";" +
 	"(" + idX + ";" +
 	idY + ";" +
-	idZ + ")"
+	idZ + ")" +
 	//alive + ";" +
-	//neighbors.size()
+	neighbors.size()
 	;]]></Body>
 				</Function>
 				<Function AccessType="private" StaticFunction="false">
